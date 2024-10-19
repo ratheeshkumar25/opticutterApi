@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./";
+
+service  UserService {
+    rpc GoogleSignIn(GoogleSignInRequest)returns(UserSignUpResponse){};
+    rpc UserSignup(Signup) returns(Response);
+    rpc VerifyUser(OTP) returns(Response);
+    rpc UserLogin(Login) returns(Response);
+    rpc ViewProfile(ID)returns(Profile);
+    rpc EditProftle(Profile)returns(Profile);
+    rpc ChangePassword(Password)returns(Response);
+    rpc AddAddress(Address) returns(Response);
+    rpc ViewAllAddress(ID) returns(AddressList);
+    rpc EditAddress(Address)returns(Address);
+    rpc RemoveAddress(IDs)returns(Response);
+    rpc GetUserGoogleDetailsByID(ID)returns(GoogleUserDetails){};
+    rpc UpdateUserGoogleToken(UpdateGoogleTokenReq)returns(UpdateGoogleTokenRes){};
+    rpc UnblockUser(ID)returns(Response);
+}
+
+message NoParam {}
+
+message Response {
+    enum Status {
+        OK = 0;
+        ERROR = 1;
+    }
+    Status status = 1;
+    string message = 2;
+    oneof payload {
+        string error = 3;
+        string data = 4;
+    }
+}
+
+message Signup{
+    string First_Name = 1;
+    string Last_Name = 2;
+    string Phone = 3;
+    string Email = 4;
+    string Password = 5;
+}
+
+message OTP{
+    string Email = 1;
+    string Otp = 2;
+}
+
+message Login{
+    string Email = 1;
+    string Password = 2;
+}
+message ID{
+    uint32 ID = 1;
+}
+
+message IDs {
+    uint32 ID = 1;
+    uint32 User_ID = 2;
+}
+
+message Profile{
+    uint32 User_ID = 1;
+    string First_Name = 2;
+    string Last_Name = 3;
+    string Phone = 4;
+    string Email = 5;
+    float Wallet = 6;
+    bool Is_Blocked = 7;
+}
+
+message Address {
+    uint32 ID = 7;
+    uint32 User_ID = 1;
+    string House = 2;
+    string Street = 3;
+    string City = 4;
+    uint32 Zip = 5;
+    string State = 6;
+}
+
+message AddressList{
+    repeated Address Addresses = 1;
+}
+
+message Password {
+    uint32 User_ID = 1;
+    string Old_Password = 2;
+    string New_Password = 3;
+    string Confirm_Password = 4;
+}
+
+message GoogleSignInRequest{
+	string google_id = 1;
+    string email = 2;
+    string name = 3;
+	string AccessToken=4;
+	string RefreshToken=5;
+	string tokenexpiry=6;
+}
+message GoogleSignInResponse{
+    string id=1;
+    string google_id=2;
+    string fullname=3;
+    string email=4;
+}
+
+message UserSignUpResponse {
+	GoogleSignInResponse  Profile=1;
+	string AccessToken=2; 
+	string RefreshToken =3;
+}
+
+message GoogleUserDetails{
+   string googleid=1;
+   string email=2;
+   string accesstoken=3;
+   string refreshtoken=4;
+   string tokenexpiry=5;
+}
+message UpdateGoogleTokenReq{
+   string googleID=1;
+   string accessToken=2;
+   string refreshToken=3;
+   string tokenExpiry=4;
+}
+message UpdateGoogleTokenRes{}

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./";
+
+
+service AdminService {
+     rpc AdminLoginRequest(AdminLogin) returns(AdminResponse);
+     rpc AdminBlockUser(AdID) returns(AdminResponse);
+     rpc AdminUnblockUser(AdID)returns(AdminResponse);
+}
+
+message AdID {
+    uint32 ID = 1;
+}
+
+message AdminLogin{
+    string email = 1;
+    string password =2;
+}
+
+message AdminResponse {
+    enum Status {
+        OK = 0;
+        ERROR = 1;
+    }
+
+    Status status = 1;
+    string message = 2;
+    oneof payload {
+        string error = 3;
+        string data = 4;
+    }
+}
