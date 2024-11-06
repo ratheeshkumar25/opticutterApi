@@ -6,8 +6,11 @@ import "github.com/spf13/viper"
 type Config struct {
 	APIPORT   string `mapstructure:"APIPORT"`
 	SECRETKEY string `mapstructure:"JWTKEY"`
-	USERPORT  string `mapstructure:"USERPORT"`
-	ADMINPORT string `mapstructure:"ADMINPORT"`
+	//ADMINSECERETKEY string `mapstructure:"ADMINJWTKEY"`
+	USERPORT    string `mapstructure:"USERPORT"`
+	ADMINPORT   string `mapstructure:"ADMINPORT"`
+	JWTISSUER   string `mapstructure:"JWT_ISSUER"`
+	JWTAUDIENCE string `mapstructure:"JWT_AUDIENCE"`
 }
 
 func LoadConfig() (*Config, error) {

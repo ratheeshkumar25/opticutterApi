@@ -54,3 +54,47 @@ func (u *User) EditProfile(ctx *gin.Context) {
 func (u *User) ChangePassword(ctx *gin.Context) {
 	handler.ChangePasswordHandler(ctx, u.client)
 }
+
+func (u *User) AddItem(ctx *gin.Context) {
+	handler.AddItemHandler(ctx, u.client)
+}
+
+func (u *User) FindAllItem(ctx *gin.Context) {
+	handler.ViewAllItemHandler(ctx, u.client)
+}
+
+func (u *User) EditItem(ctx *gin.Context) {
+	handler.EditItemHandler(ctx, u.client)
+}
+
+func (u *User) RemoveItem(ctx *gin.Context) {
+	handler.RemoveItemHandler(ctx, u.client)
+}
+
+func (u *User) FindAllItemByUser(ctx *gin.Context) {
+	handler.ViewAllItemByUserHandler(ctx, u.client)
+}
+
+func (u *User) FindMaterialByID(ctx *gin.Context) {
+	handler.MaterialByIDHandler(ctx, u.client)
+}
+
+func (u *User) FindAllMaterial(ctx *gin.Context) {
+	handler.FindAllMaterialHandler(ctx, u.client)
+}
+
+func (u *User) PlaceOrder(ctx *gin.Context) {
+	handler.PlaceOrderHandler(ctx, u.client)
+}
+
+func (u *User) FindOrder(ctx *gin.Context) {
+	handler.ViewOrderHandler(ctx, u.client)
+}
+
+func (u *User) OrderHistory(ctx *gin.Context) {
+	handler.ViewAllOrderHandler(ctx, u.client)
+}
+
+func (u *User) FindOrdersByUser(ctx *gin.Context) {
+	handler.ViewAllOrderByUserHandler(ctx, u.client)
+}

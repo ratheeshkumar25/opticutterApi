@@ -40,5 +40,17 @@ func NewAdminRoute(c *gin.Engine, cfg config.Config) {
 	{
 		auth.PATCH("/user/:id", adminHandler.BlockUser)
 		auth.PATCH("/user/unblock/:id", adminHandler.UnblockUser)
+
+		auth.POST("/material", adminHandler.AddMaterial)
+		auth.GET("/material", adminHandler.FindAllMaterial)
+		auth.GET("/material/:id", adminHandler.FindMaterialByID)
+		auth.PATCH("/material/:id", adminHandler.EditMaterial)
+		auth.DELETE("/material/:id", adminHandler.RemoveMaterial)
+
+		auth.GET("/item", adminHandler.FindAllItem)
+
+		auth.GET("/orders", adminHandler.OrderHistory)
+		auth.GET("/order/:id", adminHandler.FindOrder)
+		auth.GET("/orders/:id", adminHandler.FindOrdersByUser)
 	}
 }

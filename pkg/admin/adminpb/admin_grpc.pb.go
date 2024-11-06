@@ -22,6 +22,15 @@ const (
 	AdminService_AdminLoginRequest_FullMethodName = "/pb.AdminService/AdminLoginRequest"
 	AdminService_AdminBlockUser_FullMethodName    = "/pb.AdminService/AdminBlockUser"
 	AdminService_AdminUnblockUser_FullMethodName  = "/pb.AdminService/AdminUnblockUser"
+	AdminService_AddMaterial_FullMethodName       = "/pb.AdminService/AddMaterial"
+	AdminService_FindMaterialByID_FullMethodName  = "/pb.AdminService/FindMaterialByID"
+	AdminService_FindAllMaterial_FullMethodName   = "/pb.AdminService/FindAllMaterial"
+	AdminService_EditMaterial_FullMethodName      = "/pb.AdminService/EditMaterial"
+	AdminService_RemoveMaterial_FullMethodName    = "/pb.AdminService/RemoveMaterial"
+	AdminService_FindAllItem_FullMethodName       = "/pb.AdminService/FindAllItem"
+	AdminService_OrderHistory_FullMethodName      = "/pb.AdminService/OrderHistory"
+	AdminService_FindOrder_FullMethodName         = "/pb.AdminService/FindOrder"
+	AdminService_FindOrdersByUser_FullMethodName  = "/pb.AdminService/FindOrdersByUser"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -31,6 +40,18 @@ type AdminServiceClient interface {
 	AdminLoginRequest(ctx context.Context, in *AdminLogin, opts ...grpc.CallOption) (*AdminResponse, error)
 	AdminBlockUser(ctx context.Context, in *AdID, opts ...grpc.CallOption) (*AdminResponse, error)
 	AdminUnblockUser(ctx context.Context, in *AdID, opts ...grpc.CallOption) (*AdminResponse, error)
+	// Service to handle material management
+	AddMaterial(ctx context.Context, in *AdminMaterial, opts ...grpc.CallOption) (*AdminResponse, error)
+	FindMaterialByID(ctx context.Context, in *AdminMaterialID, opts ...grpc.CallOption) (*AdminMaterial, error)
+	FindAllMaterial(ctx context.Context, in *AdminItemNoParams, opts ...grpc.CallOption) (*AdminMaterialList, error)
+	EditMaterial(ctx context.Context, in *AdminMaterial, opts ...grpc.CallOption) (*AdminMaterial, error)
+	RemoveMaterial(ctx context.Context, in *AdminMaterialID, opts ...grpc.CallOption) (*AdminResponse, error)
+	// Service to handle item management
+	FindAllItem(ctx context.Context, in *AdminItemNoParams, opts ...grpc.CallOption) (*AdminItemList, error)
+	// Service to handle orders
+	OrderHistory(ctx context.Context, in *AdminItemNoParams, opts ...grpc.CallOption) (*AdminOrderList, error)
+	FindOrder(ctx context.Context, in *AdminItemID, opts ...grpc.CallOption) (*AdminOrder, error)
+	FindOrdersByUser(ctx context.Context, in *AdminItemID, opts ...grpc.CallOption) (*AdminOrderList, error)
 }
 
 type adminServiceClient struct {
@@ -71,6 +92,96 @@ func (c *adminServiceClient) AdminUnblockUser(ctx context.Context, in *AdID, opt
 	return out, nil
 }
 
+func (c *adminServiceClient) AddMaterial(ctx context.Context, in *AdminMaterial, opts ...grpc.CallOption) (*AdminResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminResponse)
+	err := c.cc.Invoke(ctx, AdminService_AddMaterial_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) FindMaterialByID(ctx context.Context, in *AdminMaterialID, opts ...grpc.CallOption) (*AdminMaterial, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminMaterial)
+	err := c.cc.Invoke(ctx, AdminService_FindMaterialByID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) FindAllMaterial(ctx context.Context, in *AdminItemNoParams, opts ...grpc.CallOption) (*AdminMaterialList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminMaterialList)
+	err := c.cc.Invoke(ctx, AdminService_FindAllMaterial_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) EditMaterial(ctx context.Context, in *AdminMaterial, opts ...grpc.CallOption) (*AdminMaterial, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminMaterial)
+	err := c.cc.Invoke(ctx, AdminService_EditMaterial_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) RemoveMaterial(ctx context.Context, in *AdminMaterialID, opts ...grpc.CallOption) (*AdminResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminResponse)
+	err := c.cc.Invoke(ctx, AdminService_RemoveMaterial_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) FindAllItem(ctx context.Context, in *AdminItemNoParams, opts ...grpc.CallOption) (*AdminItemList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminItemList)
+	err := c.cc.Invoke(ctx, AdminService_FindAllItem_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) OrderHistory(ctx context.Context, in *AdminItemNoParams, opts ...grpc.CallOption) (*AdminOrderList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminOrderList)
+	err := c.cc.Invoke(ctx, AdminService_OrderHistory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) FindOrder(ctx context.Context, in *AdminItemID, opts ...grpc.CallOption) (*AdminOrder, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminOrder)
+	err := c.cc.Invoke(ctx, AdminService_FindOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) FindOrdersByUser(ctx context.Context, in *AdminItemID, opts ...grpc.CallOption) (*AdminOrderList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminOrderList)
+	err := c.cc.Invoke(ctx, AdminService_FindOrdersByUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServiceServer is the server API for AdminService service.
 // All implementations must embed UnimplementedAdminServiceServer
 // for forward compatibility.
@@ -78,6 +189,18 @@ type AdminServiceServer interface {
 	AdminLoginRequest(context.Context, *AdminLogin) (*AdminResponse, error)
 	AdminBlockUser(context.Context, *AdID) (*AdminResponse, error)
 	AdminUnblockUser(context.Context, *AdID) (*AdminResponse, error)
+	// Service to handle material management
+	AddMaterial(context.Context, *AdminMaterial) (*AdminResponse, error)
+	FindMaterialByID(context.Context, *AdminMaterialID) (*AdminMaterial, error)
+	FindAllMaterial(context.Context, *AdminItemNoParams) (*AdminMaterialList, error)
+	EditMaterial(context.Context, *AdminMaterial) (*AdminMaterial, error)
+	RemoveMaterial(context.Context, *AdminMaterialID) (*AdminResponse, error)
+	// Service to handle item management
+	FindAllItem(context.Context, *AdminItemNoParams) (*AdminItemList, error)
+	// Service to handle orders
+	OrderHistory(context.Context, *AdminItemNoParams) (*AdminOrderList, error)
+	FindOrder(context.Context, *AdminItemID) (*AdminOrder, error)
+	FindOrdersByUser(context.Context, *AdminItemID) (*AdminOrderList, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
 
@@ -96,6 +219,33 @@ func (UnimplementedAdminServiceServer) AdminBlockUser(context.Context, *AdID) (*
 }
 func (UnimplementedAdminServiceServer) AdminUnblockUser(context.Context, *AdID) (*AdminResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminUnblockUser not implemented")
+}
+func (UnimplementedAdminServiceServer) AddMaterial(context.Context, *AdminMaterial) (*AdminResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMaterial not implemented")
+}
+func (UnimplementedAdminServiceServer) FindMaterialByID(context.Context, *AdminMaterialID) (*AdminMaterial, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindMaterialByID not implemented")
+}
+func (UnimplementedAdminServiceServer) FindAllMaterial(context.Context, *AdminItemNoParams) (*AdminMaterialList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindAllMaterial not implemented")
+}
+func (UnimplementedAdminServiceServer) EditMaterial(context.Context, *AdminMaterial) (*AdminMaterial, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditMaterial not implemented")
+}
+func (UnimplementedAdminServiceServer) RemoveMaterial(context.Context, *AdminMaterialID) (*AdminResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveMaterial not implemented")
+}
+func (UnimplementedAdminServiceServer) FindAllItem(context.Context, *AdminItemNoParams) (*AdminItemList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindAllItem not implemented")
+}
+func (UnimplementedAdminServiceServer) OrderHistory(context.Context, *AdminItemNoParams) (*AdminOrderList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrderHistory not implemented")
+}
+func (UnimplementedAdminServiceServer) FindOrder(context.Context, *AdminItemID) (*AdminOrder, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindOrder not implemented")
+}
+func (UnimplementedAdminServiceServer) FindOrdersByUser(context.Context, *AdminItemID) (*AdminOrderList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindOrdersByUser not implemented")
 }
 func (UnimplementedAdminServiceServer) mustEmbedUnimplementedAdminServiceServer() {}
 func (UnimplementedAdminServiceServer) testEmbeddedByValue()                      {}
@@ -172,6 +322,168 @@ func _AdminService_AdminUnblockUser_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_AddMaterial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminMaterial)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).AddMaterial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_AddMaterial_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).AddMaterial(ctx, req.(*AdminMaterial))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_FindMaterialByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminMaterialID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).FindMaterialByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_FindMaterialByID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).FindMaterialByID(ctx, req.(*AdminMaterialID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_FindAllMaterial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminItemNoParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).FindAllMaterial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_FindAllMaterial_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).FindAllMaterial(ctx, req.(*AdminItemNoParams))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_EditMaterial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminMaterial)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).EditMaterial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_EditMaterial_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).EditMaterial(ctx, req.(*AdminMaterial))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_RemoveMaterial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminMaterialID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).RemoveMaterial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_RemoveMaterial_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).RemoveMaterial(ctx, req.(*AdminMaterialID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_FindAllItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminItemNoParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).FindAllItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_FindAllItem_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).FindAllItem(ctx, req.(*AdminItemNoParams))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_OrderHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminItemNoParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).OrderHistory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_OrderHistory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).OrderHistory(ctx, req.(*AdminItemNoParams))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_FindOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminItemID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).FindOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_FindOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).FindOrder(ctx, req.(*AdminItemID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_FindOrdersByUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminItemID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).FindOrdersByUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_FindOrdersByUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).FindOrdersByUser(ctx, req.(*AdminItemID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +502,42 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminUnblockUser",
 			Handler:    _AdminService_AdminUnblockUser_Handler,
+		},
+		{
+			MethodName: "AddMaterial",
+			Handler:    _AdminService_AddMaterial_Handler,
+		},
+		{
+			MethodName: "FindMaterialByID",
+			Handler:    _AdminService_FindMaterialByID_Handler,
+		},
+		{
+			MethodName: "FindAllMaterial",
+			Handler:    _AdminService_FindAllMaterial_Handler,
+		},
+		{
+			MethodName: "EditMaterial",
+			Handler:    _AdminService_EditMaterial_Handler,
+		},
+		{
+			MethodName: "RemoveMaterial",
+			Handler:    _AdminService_RemoveMaterial_Handler,
+		},
+		{
+			MethodName: "FindAllItem",
+			Handler:    _AdminService_FindAllItem_Handler,
+		},
+		{
+			MethodName: "OrderHistory",
+			Handler:    _AdminService_OrderHistory_Handler,
+		},
+		{
+			MethodName: "FindOrder",
+			Handler:    _AdminService_FindOrder_Handler,
+		},
+		{
+			MethodName: "FindOrdersByUser",
+			Handler:    _AdminService_FindOrdersByUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
