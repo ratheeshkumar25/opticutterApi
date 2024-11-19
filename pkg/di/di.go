@@ -17,6 +17,9 @@ func Init() {
 
 	// Initialize the server
 	srv := server.NewServer()
+	//srv.R.LoadHTMLGlob("template/*")
+	srv.R.LoadHTMLGlob("/home/user/Desktop/opti_cut_Api_gateway/template/*")
+	//srv.R.LoadHTMLFiles("template/stripe.html")
 
 	// Use the HTTPServer field instead of calling it
 	user.NewUserRoute(srv.R, *cnf)

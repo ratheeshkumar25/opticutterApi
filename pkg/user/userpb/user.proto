@@ -34,6 +34,11 @@ service  UserService {
     rpc OrderHistory(NoParam) returns (UserOrderList);
     rpc FindOrder(UserItemID) returns (UserOrder);
     rpc FindOrdersByUser(UserItemID) returns (UserOrderList);
+
+    rpc UserCreatePayment(UserOrder) returns(UserPaymentResponse);
+    rpc UserPaymentSuccess(UserPayment) returns(UserPaymentStatusResponse );
+    rpc GenerateCuttingResult(UserItemID) returns (UserCuttingResultResponse);
+    rpc UserGetCuttingResult(UserItemID) returns (UserCuttingResultResponse);
 }
 
 message NoParam {}
@@ -164,4 +169,65 @@ message UserOrderList {
     repeated UserOrder Orders = 1;
 }
 
+//Payment
+message UserPaymentResponse {
+        enum Status {
+        OK = 0;
+        ERROR = 1;
+    }
+    
+    Status status = 1;
+    string message = 2;
+    string payment_id = 3;   // PaymentIntent ID from Stripe
+    string client_secret = 4; // Separate field for client secret
+    uint32 user_id = 5;
+    double amount = 6;
+    string order_id = 7;
+}
 
+message UserPayment {
+    uint32 User_ID = 1;
+    string Payment_ID = 2;
+    double Amount = 3;    // Changed to double to match consistency
+    uint32 Order_ID = 4;
+}
+
+message UserPaymentStatusResponse {
+        enum PaymentStatus {
+            
+        SUCCESS = 0;
+        FAILED = 1;
+        PENDING = 2;
+    }
+    
+    PaymentStatus status = 1;
+    string message = 2;
+}
+
+//cuttingResult
+message UserComponent{
+    uint32 Material_ID = 1;
+    string DoorPanel = 2;
+    string BackSidePanel = 3;
+    string SidePanel = 4;
+    string TopPanel = 5;
+    string BottomPanel = 6;
+    string ShelvesPanel = 7;
+    int32 Panel_Count = 8;
+}
+
+message UsercuttingResult {
+    uint32 Item_ID = 1;
+    repeated UserComponent Components = 2;
+}
+
+message UserCuttingResultResponse {
+    enum Status {
+        OK = 0;
+        ERROR = 1;
+    }
+
+    Status status = 1;
+    string message = 2;
+    UsercuttingResult cutting_result = 3; 
+}

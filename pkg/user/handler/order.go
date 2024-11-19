@@ -159,6 +159,7 @@ func ViewAllOrderByUserHandler(c *gin.Context, client pb.UserServiceClient) {
 	}
 
 	type Order struct {
+		OrderID   uint   `json:"order_id"`
 		UserID    uint   `json:"user_id"`
 		ItemID    uint   `json:"item_id"`    // The item being ordered
 		Quantity  int    `json:"quantity"`   // Order quantity
@@ -172,7 +173,8 @@ func ViewAllOrderByUserHandler(c *gin.Context, client pb.UserServiceClient) {
 	orders := make([]Order, len(resp.Orders))
 	for i, ord := range resp.Orders {
 		orders[i] = Order{
-			UserID:    uint(ord.Item_ID),
+			OrderID:   uint(ord.Order_ID),
+			UserID:    uint(ord.User_ID),
 			ItemID:    uint(ord.Item_ID),
 			Quantity:  int(ord.Quantity),
 			Status:    ord.Status,

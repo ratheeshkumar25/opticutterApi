@@ -11,6 +11,7 @@ type Config struct {
 	ADMINPORT   string `mapstructure:"ADMINPORT"`
 	JWTISSUER   string `mapstructure:"JWT_ISSUER"`
 	JWTAUDIENCE string `mapstructure:"JWT_AUDIENCE"`
+	STRIPEKEY   string `maostructuee:"STRIPE_SECRET_KEY"`
 }
 
 func LoadConfig() (*Config, error) {

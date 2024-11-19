@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OptiCutter - Payment Success</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            /* Set the background image */
+           
+            color: #333;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #5cb85c; /* Success color */
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .order-details {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .nav-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #0275d8;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .nav-link:hover {
+            background-color: #025aa5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Successful!</h1>
+        <p>Thank you for purchasing with OptiCutter. Your payment was processed successfully!</p>
+        <p class="order-details">Payment ID: {{ .paymentID }}</p>
+        <p>We are preparing your order and will update you soon cutting result send via email .</p>
+        <!-- <a href="https://your-main-page-link.com" class="nav-link">Go to Orders Page</a> -->
+    </div>
+</body>
+</html>

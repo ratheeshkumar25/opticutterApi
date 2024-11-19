@@ -62,6 +62,11 @@ func NewUserRoute(c *gin.Engine, cfg config.Config) {
 		auth.GET("/order/:id", userHandler.FindOrder)
 		auth.GET("/order", userHandler.OrderHistory)
 		auth.GET("/orders", userHandler.FindOrdersByUser)
+		auth.GET("/cuttingresult/:id", userHandler.CuttingResult)
+
+		user.GET("/payment", userHandler.Payment)
+		user.POST("/payment/success", userHandler.PaymentSuccess)
+		user.GET("/payment-success", userHandler.PaymentSuccessPage)
 
 	}
 }

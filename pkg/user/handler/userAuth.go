@@ -113,6 +113,14 @@ func UserLoginHandler(c *gin.Context, client pb.UserServiceClient) {
 		return
 	}
 
+	// if user.IsBlocked {
+	// 	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+	// 		"status":  http.StatusBadRequest,
+	// 		"Message": "user blocked by admin",
+	// 	})
+	// 	return
+	// }
+
 	validate := validator.New()
 	err := validate.Struct(user)
 	if err != nil {

@@ -98,3 +98,19 @@ func (u *User) OrderHistory(ctx *gin.Context) {
 func (u *User) FindOrdersByUser(ctx *gin.Context) {
 	handler.ViewAllOrderByUserHandler(ctx, u.client)
 }
+
+func (u *User) Payment(ctx *gin.Context) {
+	handler.UserPaymentHandler(ctx, u.client)
+}
+
+func (u *User) PaymentSuccess(ctx *gin.Context) {
+	handler.UserPaymentSuccessHandler(ctx, u.client)
+}
+
+func (u *User) PaymentSuccessPage(ctx *gin.Context) {
+	handler.PaymentSuccessPage(ctx, u.client)
+}
+
+func (u *User) CuttingResult(ctx *gin.Context) {
+	handler.GetCuttingResultHandler(ctx, u.client)
+}

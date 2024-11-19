@@ -19,29 +19,33 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_UserSignup_FullMethodName        = "/pb.UserService/UserSignup"
-	UserService_VerifyUser_FullMethodName        = "/pb.UserService/VerifyUser"
-	UserService_UserLogin_FullMethodName         = "/pb.UserService/UserLogin"
-	UserService_ViewProfile_FullMethodName       = "/pb.UserService/ViewProfile"
-	UserService_EditProftle_FullMethodName       = "/pb.UserService/EditProftle"
-	UserService_ChangePassword_FullMethodName    = "/pb.UserService/ChangePassword"
-	UserService_AddAddress_FullMethodName        = "/pb.UserService/AddAddress"
-	UserService_ViewAllAddress_FullMethodName    = "/pb.UserService/ViewAllAddress"
-	UserService_EditAddress_FullMethodName       = "/pb.UserService/EditAddress"
-	UserService_RemoveAddress_FullMethodName     = "/pb.UserService/RemoveAddress"
-	UserService_UnblockUser_FullMethodName       = "/pb.UserService/UnblockUser"
-	UserService_FindMaterialByID_FullMethodName  = "/pb.UserService/FindMaterialByID"
-	UserService_FindAllMaterial_FullMethodName   = "/pb.UserService/FindAllMaterial"
-	UserService_AddItem_FullMethodName           = "/pb.UserService/AddItem"
-	UserService_FindItemByID_FullMethodName      = "/pb.UserService/FindItemByID"
-	UserService_FindAllItem_FullMethodName       = "/pb.UserService/FindAllItem"
-	UserService_FindAllItemByUser_FullMethodName = "/pb.UserService/FindAllItemByUser"
-	UserService_EditItem_FullMethodName          = "/pb.UserService/EditItem"
-	UserService_RemoveItem_FullMethodName        = "/pb.UserService/RemoveItem"
-	UserService_PlaceOrder_FullMethodName        = "/pb.UserService/PlaceOrder"
-	UserService_OrderHistory_FullMethodName      = "/pb.UserService/OrderHistory"
-	UserService_FindOrder_FullMethodName         = "/pb.UserService/FindOrder"
-	UserService_FindOrdersByUser_FullMethodName  = "/pb.UserService/FindOrdersByUser"
+	UserService_UserSignup_FullMethodName            = "/pb.UserService/UserSignup"
+	UserService_VerifyUser_FullMethodName            = "/pb.UserService/VerifyUser"
+	UserService_UserLogin_FullMethodName             = "/pb.UserService/UserLogin"
+	UserService_ViewProfile_FullMethodName           = "/pb.UserService/ViewProfile"
+	UserService_EditProftle_FullMethodName           = "/pb.UserService/EditProftle"
+	UserService_ChangePassword_FullMethodName        = "/pb.UserService/ChangePassword"
+	UserService_AddAddress_FullMethodName            = "/pb.UserService/AddAddress"
+	UserService_ViewAllAddress_FullMethodName        = "/pb.UserService/ViewAllAddress"
+	UserService_EditAddress_FullMethodName           = "/pb.UserService/EditAddress"
+	UserService_RemoveAddress_FullMethodName         = "/pb.UserService/RemoveAddress"
+	UserService_UnblockUser_FullMethodName           = "/pb.UserService/UnblockUser"
+	UserService_FindMaterialByID_FullMethodName      = "/pb.UserService/FindMaterialByID"
+	UserService_FindAllMaterial_FullMethodName       = "/pb.UserService/FindAllMaterial"
+	UserService_AddItem_FullMethodName               = "/pb.UserService/AddItem"
+	UserService_FindItemByID_FullMethodName          = "/pb.UserService/FindItemByID"
+	UserService_FindAllItem_FullMethodName           = "/pb.UserService/FindAllItem"
+	UserService_FindAllItemByUser_FullMethodName     = "/pb.UserService/FindAllItemByUser"
+	UserService_EditItem_FullMethodName              = "/pb.UserService/EditItem"
+	UserService_RemoveItem_FullMethodName            = "/pb.UserService/RemoveItem"
+	UserService_PlaceOrder_FullMethodName            = "/pb.UserService/PlaceOrder"
+	UserService_OrderHistory_FullMethodName          = "/pb.UserService/OrderHistory"
+	UserService_FindOrder_FullMethodName             = "/pb.UserService/FindOrder"
+	UserService_FindOrdersByUser_FullMethodName      = "/pb.UserService/FindOrdersByUser"
+	UserService_UserCreatePayment_FullMethodName     = "/pb.UserService/UserCreatePayment"
+	UserService_UserPaymentSuccess_FullMethodName    = "/pb.UserService/UserPaymentSuccess"
+	UserService_GenerateCuttingResult_FullMethodName = "/pb.UserService/GenerateCuttingResult"
+	UserService_UserGetCuttingResult_FullMethodName  = "/pb.UserService/UserGetCuttingResult"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -74,6 +78,10 @@ type UserServiceClient interface {
 	OrderHistory(ctx context.Context, in *NoParam, opts ...grpc.CallOption) (*UserOrderList, error)
 	FindOrder(ctx context.Context, in *UserItemID, opts ...grpc.CallOption) (*UserOrder, error)
 	FindOrdersByUser(ctx context.Context, in *UserItemID, opts ...grpc.CallOption) (*UserOrderList, error)
+	UserCreatePayment(ctx context.Context, in *UserOrder, opts ...grpc.CallOption) (*UserPaymentResponse, error)
+	UserPaymentSuccess(ctx context.Context, in *UserPayment, opts ...grpc.CallOption) (*UserPaymentStatusResponse, error)
+	GenerateCuttingResult(ctx context.Context, in *UserItemID, opts ...grpc.CallOption) (*UserCuttingResultResponse, error)
+	UserGetCuttingResult(ctx context.Context, in *UserItemID, opts ...grpc.CallOption) (*UserCuttingResultResponse, error)
 }
 
 type userServiceClient struct {
@@ -314,6 +322,46 @@ func (c *userServiceClient) FindOrdersByUser(ctx context.Context, in *UserItemID
 	return out, nil
 }
 
+func (c *userServiceClient) UserCreatePayment(ctx context.Context, in *UserOrder, opts ...grpc.CallOption) (*UserPaymentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserPaymentResponse)
+	err := c.cc.Invoke(ctx, UserService_UserCreatePayment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) UserPaymentSuccess(ctx context.Context, in *UserPayment, opts ...grpc.CallOption) (*UserPaymentStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserPaymentStatusResponse)
+	err := c.cc.Invoke(ctx, UserService_UserPaymentSuccess_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GenerateCuttingResult(ctx context.Context, in *UserItemID, opts ...grpc.CallOption) (*UserCuttingResultResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserCuttingResultResponse)
+	err := c.cc.Invoke(ctx, UserService_GenerateCuttingResult_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) UserGetCuttingResult(ctx context.Context, in *UserItemID, opts ...grpc.CallOption) (*UserCuttingResultResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserCuttingResultResponse)
+	err := c.cc.Invoke(ctx, UserService_UserGetCuttingResult_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -344,6 +392,10 @@ type UserServiceServer interface {
 	OrderHistory(context.Context, *NoParam) (*UserOrderList, error)
 	FindOrder(context.Context, *UserItemID) (*UserOrder, error)
 	FindOrdersByUser(context.Context, *UserItemID) (*UserOrderList, error)
+	UserCreatePayment(context.Context, *UserOrder) (*UserPaymentResponse, error)
+	UserPaymentSuccess(context.Context, *UserPayment) (*UserPaymentStatusResponse, error)
+	GenerateCuttingResult(context.Context, *UserItemID) (*UserCuttingResultResponse, error)
+	UserGetCuttingResult(context.Context, *UserItemID) (*UserCuttingResultResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -422,6 +474,18 @@ func (UnimplementedUserServiceServer) FindOrder(context.Context, *UserItemID) (*
 }
 func (UnimplementedUserServiceServer) FindOrdersByUser(context.Context, *UserItemID) (*UserOrderList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindOrdersByUser not implemented")
+}
+func (UnimplementedUserServiceServer) UserCreatePayment(context.Context, *UserOrder) (*UserPaymentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserCreatePayment not implemented")
+}
+func (UnimplementedUserServiceServer) UserPaymentSuccess(context.Context, *UserPayment) (*UserPaymentStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserPaymentSuccess not implemented")
+}
+func (UnimplementedUserServiceServer) GenerateCuttingResult(context.Context, *UserItemID) (*UserCuttingResultResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateCuttingResult not implemented")
+}
+func (UnimplementedUserServiceServer) UserGetCuttingResult(context.Context, *UserItemID) (*UserCuttingResultResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserGetCuttingResult not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -858,6 +922,78 @@ func _UserService_FindOrdersByUser_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UserCreatePayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserOrder)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UserCreatePayment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UserCreatePayment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UserCreatePayment(ctx, req.(*UserOrder))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_UserPaymentSuccess_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserPayment)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UserPaymentSuccess(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UserPaymentSuccess_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UserPaymentSuccess(ctx, req.(*UserPayment))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GenerateCuttingResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserItemID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GenerateCuttingResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GenerateCuttingResult_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GenerateCuttingResult(ctx, req.(*UserItemID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_UserGetCuttingResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserItemID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UserGetCuttingResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UserGetCuttingResult_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UserGetCuttingResult(ctx, req.(*UserItemID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -956,6 +1092,22 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindOrdersByUser",
 			Handler:    _UserService_FindOrdersByUser_Handler,
+		},
+		{
+			MethodName: "UserCreatePayment",
+			Handler:    _UserService_UserCreatePayment_Handler,
+		},
+		{
+			MethodName: "UserPaymentSuccess",
+			Handler:    _UserService_UserPaymentSuccess_Handler,
+		},
+		{
+			MethodName: "GenerateCuttingResult",
+			Handler:    _UserService_GenerateCuttingResult_Handler,
+		},
+		{
+			MethodName: "UserGetCuttingResult",
+			Handler:    _UserService_UserGetCuttingResult_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
