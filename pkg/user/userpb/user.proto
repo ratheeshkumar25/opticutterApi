@@ -163,6 +163,7 @@ message UserOrder {
     bool Is_Custom = 7;
     double Amount = 8;
     string Payment_ID = 9;
+    string Email = 10; 
 }
 
 message UserOrderList {

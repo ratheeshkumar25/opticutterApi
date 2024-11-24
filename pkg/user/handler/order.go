@@ -41,11 +41,13 @@ func PlaceOrderHandler(c *gin.Context, client pb.UserServiceClient) {
 		return
 	}
 	fmt.Println("userid", userID)
+	fmt.Println("email", order.Email)
 
 	response, err := client.PlaceOrder(ctx, &pb.UserOrder{
 		User_ID:  uint32(userID),
 		Item_ID:  uint32(order.ItemID),
 		Quantity: int32(order.Quantity),
+		Email:    order.Email,
 	})
 
 	if err != nil {
