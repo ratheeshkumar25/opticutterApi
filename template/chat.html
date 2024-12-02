@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        #container {
+            width: 400px;
+            height: 600px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        h1 {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        #messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #fafafa;
+            list-style: none;
+        }
+
+        #messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #messages::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+
+        #messages li {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 80%;
+            font-size: 14px;
+        }
+
+        .sender {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+
+        .receiver {
+            background-color: #e2e2e2;
+            color: black;
+        }
+
+        #chatbox {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+        #messageInput {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+        }
+
+        #sendButton {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #sendButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Chat</h1>
+        <ul id="messages">
+            {{range .response}}
+                {{if eq .User_ID $.id}}
+                    <li class="sender">{{.Content}}</li>
+                {{else}}
+                    <li class="receiver">{{.Content}}</li>
+                {{end}}
+            {{end}}
+        </ul>
+        <form id="chatbox">
+            <textarea id="messageInput" placeholder="Type your message..."></textarea>
+            <button id="sendButton" type="submit">Send</button>
+        </form>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script>
+        $(function(){
+            var socket = null;
+            var msgBox = $("#messageInput");
+            var messages = $("#messages");
+
+            $("#chatbox").submit(function(event){
+                event.preventDefault();
+                if (!msgBox.val()) return false;
+                if (!socket) {
+                    alert("Error: There is no socket connection.");
+                    return false;
+                }
+
+                var message = {
+                    userId: parseInt(userId),
+                    receiverId: parseInt(receiverId),
+                    content: msgBox.val()
+                };
+
+                socket.send(JSON.stringify(message));
+                msgBox.val("");
+                return false;
+            });
+
+            if (!window["WebSocket"]) {
+                alert("Error: Your browser does not support web sockets.");
+            } else {
+                var urlParams = new URLSearchParams(window.location.search);
+                var userId = urlParams.get('id');
+                var receiverId = urlParams.get('receiverId');
+                
+                var socketProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                var socketUrl = socketProtocol + "//" + window.location.host + "/api/v1/user/chat?id=" + userId + "&receiverId=" + receiverId;
+                
+                socket = new WebSocket(socketUrl);
+                socket.onmessage = function(e) {
+                    var message = JSON.parse(e.data);
+                    var li = $("<li>").text(message.content);
+                    li.addClass(message.userId == userId ? "sender" : "receiver");
+                    messages.append(li);
+                    messages.scrollTop(messages[0].scrollHeight);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

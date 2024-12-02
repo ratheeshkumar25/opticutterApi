@@ -9,6 +9,7 @@ type Config struct {
 	//ADMINSECERETKEY string `mapstructure:"ADMINJWTKEY"`
 	USERPORT    string `mapstructure:"USERPORT"`
 	ADMINPORT   string `mapstructure:"ADMINPORT"`
+	CHATPORT    string `mapstructure:"CHATPORT"`
 	JWTISSUER   string `mapstructure:"JWT_ISSUER"`
 	JWTAUDIENCE string `mapstructure:"JWT_AUDIENCE"`
 	STRIPEKEY   string `maostructuee:"STRIPE_SECRET_KEY"`

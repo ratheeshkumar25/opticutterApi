@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./";
+
+service ChatService {
+    rpc Connect (stream Message) returns (stream Message);
+    rpc FetchHistory(ChatID) returns (ChatHistory);
+    rpc StartVideoCall(VideoCallRequest) returns (VideoCallResponse);
+}
+
+message Message {
+    uint32 chat_id = 1;
+    uint32 User_ID = 2;
+    uint32 Receiver_ID = 3;
+    string Content = 4; 
+}
+
+message ChatID {
+    uint32 User_ID = 1;
+    uint32 Receiver_ID = 2;
+}
+
+message ChatHistory {
+    repeated Message Chats = 1;
+}
+
+message VideoCallRequest {
+    uint32 User_ID = 1;
+    uint32 Receiver_ID = 2;
+}
+
+message VideoCallResponse {
+    string RoomUrl = 1;
+}

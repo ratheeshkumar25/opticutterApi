@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call</title>
+    <script>
+        async function initiateVideoCall() {
+            const userId = document.getElementById("user_id").value;
+            const receiverId = document.getElementById("receiver_id").value;
+
+            if (!userId || !receiverId) {
+                alert("User ID and Receiver ID are required!");
+                return;
+            }
+
+            try {
+                const response = await fetch("/start-video-call", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_id: parseInt(userId), receiver_id: parseInt(receiverId) }),
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert("Video call started! Redirecting...");
+                    window.location.href = data.room_url; // Redirect to the Jitsi Meet URL
+                } else {
+                    alert(`Failed to start video call: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Start a Video Call</h1>
+    <form onsubmit="event.preventDefault(); initiateVideoCall();">
+        <label for="user_id">User ID:</label>
+        <input type="number" id="user_id" required>
+        <br>
+        <label for="receiver_id">Receiver ID:</label>
+        <input type="number" id="receiver_id" required>
+        <br>
+        <button type="submit">Start Video Call</button>
+    </form>
+</body>
+</html>
