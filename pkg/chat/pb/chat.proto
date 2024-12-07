@@ -8,29 +8,111 @@ service ChatService {
     rpc Connect (stream Message) returns (stream Message);
     rpc FetchHistory(ChatID) returns (ChatHistory);
     rpc StartVideoCall(VideoCallRequest) returns (VideoCallResponse);
+    
+    // Review Service
+    rpc SubmitReview (ReviewRequest) returns (ReviewResponse);
+    rpc FetchReviews (MaterialID) returns (ReviewList);
+    
+    // Video Upload
+    rpc AddVideoChunk (VideoUploadRequest) returns (VideoUploadResponse);
+    rpc FetchVideos (FetchVideoRequest) returns (FetchVideoResponse);
 }
 
 message Message {
     uint32 chat_id = 1;
-    uint32 User_ID = 2;
-    uint32 Receiver_ID = 3;
-    string Content = 4; 
+    uint32 user_id = 2;
+    uint32 receiver_id = 3;
+    string content = 4;
 }
 
 message ChatID {
-    uint32 User_ID = 1;
-    uint32 Receiver_ID = 2;
+    uint32 user_id = 1;
+    uint32 receiver_id = 2;
 }
 
 message ChatHistory {
-    repeated Message Chats = 1;
+    repeated Message chats = 1;
 }
 
 message VideoCallRequest {
-    uint32 User_ID = 1;
-    uint32 Receiver_ID = 2;
+    uint32 user_id = 1;
+    uint32 receiver_id = 2;
 }
 
 message VideoCallResponse {
-    string RoomUrl = 1;
+    string room_url = 1;
+}
+
+// Material Reviews
+message MaterialID {
+    uint32 id = 1;
+}
+
+message ReviewRequest {
+    uint32 user_id = 1;
+    uint32 material_id = 2;
+    string review_text = 3;
+    int32 rating = 4;
+}
+
+message ReviewResponse {
+    string message = 1;
+    enum Status {
+        SUCCESS = 0;
+        FAILED = 1;
+    }
+    Status status = 2;
+}
+
+message Review {
+    uint32 review_id = 1;
+    uint32 user_id = 2;
+    uint32 material_id = 3;
+    string review_text = 4;
+    int32 rating = 5;
+    string timestamp = 6;
+}
+
+message ReviewList {
+    repeated Review reviews = 1;
+}
+
+// Video Upload-Chunk-based
+message VideoUploadRequest {
+    string video_id = 1;
+    uint32 user_id = 2;
+    uint32 material_id = 3;
+    bytes video_data = 4;
+    int32 chunk_order = 5;
+    bool is_first_chunk = 6;
+    bool is_last_chunk = 7;
+    string file_name = 8;
+    string video_url = 9;
+}
+
+message VideoUploadResponse {
+    enum Status {
+        SUCCESS = 0;
+        FAILED = 1;
+    }
+    Status status = 1;
+    string message = 2;
+    string video_id = 3;
+}
+
+message FetchVideoRequest {
+    uint32 material_id = 1;
+}
+
+message VideoMetadata {
+    string video_id = 1;
+    uint32 material_id = 2;
+    uint32 user_id = 3;
+    string file_name = 4;
+    string video_url = 5;
+    string timestamp = 6;
+}
+
+message FetchVideoResponse {
+    repeated VideoMetadata videos = 1;
 }

@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!-- <!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -651,3 +651,249 @@
 </html>
 
 
+*********************************
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Room</title>
+  <script src="https://cdn.jsdelivr.net/npm/lucide-icons@0.215.0/dist/index.min.js"></script>
+  <style>
+    /* Styles for your chat layout */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 1000px;
+      margin: auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 4px 0;
+    }
+
+    .message.me {
+      background-color: #4caf50;
+      color: white;
+      align-self: flex-end;
+    }
+
+    .message.them {
+      background-color: #f1f1f1;
+      color: #333;
+      align-self: flex-start;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 16px;
+      border-top: 2px solid #ddd;
+    }
+
+    .input-area input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .input-area button {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    .video-call-button {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .video-container {
+      display: flex;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .video-container video {
+      width: 48%;
+      border: 2px solid #ddd;
+      margin-right: 4%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+    <div class="header">
+      <h2>Chat Room</h2>
+      <button id="video-call-button" class="video-call-button">Start Video Call</button>
+    </div>
+
+    <div id="messages" class="messages"></div>
+
+    <div class="input-area">
+      <input type="text" id="message-input" placeholder="Type a message..." />
+      <button id="send-button">Send</button>
+    </div>
+
+    <!-- Video container -->
+    <div class="video-container" id="video-container">
+      <video id="local-video" autoplay muted></video>
+      <video id="remote-video" autoplay></video>
+    </div>
+  </div>
+
+  <script>
+    let socket;
+    const userId = new URLSearchParams(window.location.search).get('id');
+    const receiverId = new URLSearchParams(window.location.search).get('receiverId');
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const videoCallButton = document.getElementById('video-call-button');
+    
+    let isVideoCallActive = false;
+
+    // Establish WebSocket connection
+    const initializeWebSocket = () => {
+      const socketUrl = `ws://${window.location.host}/api/v1/user/chat?id=${userId}&receiverId=${receiverId}`;
+      socket = new WebSocket(socketUrl);
+
+      socket.onopen = () => {
+        console.log("WebSocket connected!");
+      };
+
+
+      socket.onmessage = (event) => {
+        try {
+          if (event.data.trim()) {
+            const data = JSON.parse(event.data);
+            if (data && data.type === 'chat') {
+              displayMessage(data);
+            }
+          } else {
+            console.warn("Received empty WebSocket message");
+          }
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
+      };
+
+      socket.onclose = () => {
+        console.log("WebSocket closed, attempting to reconnect...");
+        setTimeout(initializeWebSocket, 3000);  // Retry connection after 3 seconds
+      };
+
+      socket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+    };
+
+    // Display incoming message
+    const displayMessage = (message) => {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.classList.add(message.userId === parseInt(userId) ? 'me' : 'them');
+      messageDiv.textContent = message.content;
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;  // Scroll to bottom
+    };
+    
+    // Send message to server
+    const sendMessage = () => {
+      const messageContent = messageInput.value.trim();
+      if (!messageContent || !socket || socket.readyState !== WebSocket.OPEN) return;
+
+      const message = {
+        userId: parseInt(userId),
+        receiverId: parseInt(receiverId),
+        content: messageContent,
+        type: 'chat',
+      };
+
+      // Display the message immediately in the chat history
+      displayMessage(message);
+
+      // Send the message to the WebSocket server
+      socket.send(JSON.stringify(message));
+      console.log()
+
+      // Clear the input field
+      messageInput.value = '';
+    };
+
+    // Handle send button click
+    sendButton.addEventListener('click', sendMessage);
+
+    // Handle Enter key in message input
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Handle video call button click
+    videoCallButton.addEventListener('click', () => {
+      if (!isVideoCallActive) {
+        startVideoCall();
+      } else {
+        endVideoCall();
+      }
+    });
+
+    // Video call functions (placeholders for now)
+    const startVideoCall = () => {
+      console.log("Starting video call...");
+      // Show video container
+      document.getElementById("video-container").style.display = "flex";
+      videoCallButton.textContent = "End Video Call";
+      isVideoCallActive = true;
+    };
+
+    const endVideoCall = () => {
+      console.log("Ending video call...");
+      // Hide video container
+      document.getElementById("video-container").style.display = "none";
+      videoCallButton.textContent = "Start Video Call";
+      isVideoCallActive = false;
+    };
+
+    // Initialize WebSocket on page load
+    window.onload = () => {
+      initializeWebSocket();
+    };
+  </script>
+</body>
+</html> -->

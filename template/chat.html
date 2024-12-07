@@ -1,109 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
     <style>
-        * {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
         }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f4f4f9;
-        }
-
         #container {
-            width: 400px;
-            height: 600px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        h1 {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        #messages {
-            flex-grow: 1;
+            max-width: 600px;
+            margin: 50px auto;
             padding: 20px;
-            overflow-y: auto;
-            background-color: #fafafa;
-            list-style: none;
-        }
-
-        #messages::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #messages::-webkit-scrollbar-thumb {
-            background-color: #ccc;
-            border-radius: 3px;
-        }
-
-        #messages li {
-            margin: 10px 0;
-            padding: 10px 15px;
-            border-radius: 20px;
-            max-width: 80%;
-            font-size: 14px;
-        }
-
-        .sender {
-            background-color: #007bff;
-            color: white;
-            margin-left: auto;
-        }
-
-        .receiver {
-            background-color: #e2e2e2;
-            color: black;
-        }
-
-        #chatbox {
-            display: flex;
-            padding: 10px;
             background-color: #fff;
-            border-top: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        #messageInput {
-            flex-grow: 1;
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        #messages {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc; 
+            border-radius: 4px;
             padding: 10px;
-            border-radius: 20px;
+            background-color: #f9f9f9;
+        }
+        #messages li {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .sender {
+            background-color: #fff;
+            text-align: right;
+        }
+        .receiver {
+            background-color: #f0f0f0;
+            text-align: left;
+        }
+        #chatbox {
+            margin-top: 20px;
+        }
+        #messageInput {
+            width: calc(100% - 70px);
+            padding: 10px;
             border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
             margin-right: 10px;
-            font-size: 14px;
-            outline: none;
-            resize: none;
         }
-
         #sendButton {
-            background-color: #007bff;
-            color: white;
             padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
             border: none;
-            border-radius: 20px;
+            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
-            font-size: 14px;
         }
-
         #sendButton:hover {
             background-color: #0056b3;
         }
@@ -114,13 +75,15 @@
         <h1>Chat</h1>
         <ul id="messages">
             {{range .response}}
-                {{if eq .User_ID $.id}}
+                {{if eq .User_ID $.id}} <!-- Use $.id instead of id -->
                     <li class="sender">{{.Content}}</li>
                 {{else}}
                     <li class="receiver">{{.Content}}</li>
                 {{end}}
             {{end}}
         </ul>
+        
+
         <form id="chatbox">
             <textarea id="messageInput" placeholder="Type your message..."></textarea>
             <button id="sendButton" type="submit">Send</button>
@@ -133,7 +96,9 @@
             var socket = null;
             var msgBox = $("#messageInput");
             var messages = $("#messages");
-
+            var typingIndicator = $("#typingIndicator");
+            var typingTimeout;
+            // console.log(range.history,"history");
             $("#chatbox").submit(function(event){
                 event.preventDefault();
                 if (!msgBox.val()) return false;
@@ -152,26 +117,65 @@
                 msgBox.val("");
                 return false;
             });
-
             if (!window["WebSocket"]) {
-                alert("Error: Your browser does not support web sockets.");
-            } else {
-                var urlParams = new URLSearchParams(window.location.search);
-                var userId = urlParams.get('id');
-                var receiverId = urlParams.get('receiverId');
+    alert("Error: Your browser does not support web sockets.")
+} else {
+    var urlParams = new URLSearchParams(window.location.search);
+    var userId = urlParams.get('id');
+    var receiverId = urlParams.get('receiverId');
+    
+    // Update the WebSocket URL to match with my local development setup
+    var socketProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    var socketUrl = socketProtocol + "//" + window.location.host + "/api/v1/user/chat?id=" + userId + "&receiverId=" + receiverId;
+    
+    socket = new WebSocket(socketUrl);
+    socket.onerror = function(error) {
+        console.error("WebSocket error:", error);
+    }
+    socket.onopen = function() {
+        console.log("WebSocket connection established");
+    }
+    socket.onclose = function() {
+        console.log("WebSocket connection closed");
+    }
+    socket.onmessage = function(e) {
+        var message = JSON.parse(e.data);
+        var li = $("<li>").text(message.content);
+        if (message.userId == userId) {
+            li.addClass("sender");
+        } else {
+            li.addClass("receiver");
+        }
+        messages.append(li);
+    }
+}
+
+            // if (!window["WebSocket"]) {
+            //     alert("Error: Your browser does not support web sockets.")
+            // } else {
+            //     var urlParams = new URLSearchParams(window.location.search);
+            //     var userId = urlParams.get('id');
+            //     var receiverId = urlParams.get('receiverId');
                 
-                var socketProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                var socketUrl = socketProtocol + "//" + window.location.host + "/api/v1/user/chat?id=" + userId + "&receiverId=" + receiverId;
-                
-                socket = new WebSocket(socketUrl);
-                socket.onmessage = function(e) {
-                    var message = JSON.parse(e.data);
-                    var li = $("<li>").text(message.content);
-                    li.addClass(message.userId == userId ? "sender" : "receiver");
-                    messages.append(li);
-                    messages.scrollTop(messages[0].scrollHeight);
-                }
-            }
+            //     socket = new WebSocket("wss://www.golib.online/api/v1/user/chat?id=" + userId + "&receiverId=" + receiverId);
+            //     socket.onerror = function(error) {
+            //         console.error("WebSocket error:", error);
+            //         // Handle the error here, potentially showing an error message or retrying connection
+            //     }
+            //     socket.onclose = function() {
+            //         alert("Connection has been closed.");
+            //     }
+            //     socket.onmessage = function(e) {
+            //         var message = JSON.parse(e.data);
+            //         var li = $("<li>").text(message.content);
+            //         if (message.userId == userId) {
+            //             li.addClass("sender");
+            //         } else {
+            //             li.addClass("receiver");
+            //         }
+            //         messages.append(li);
+            //     }
+            // }
         });
     </script>
 </body>

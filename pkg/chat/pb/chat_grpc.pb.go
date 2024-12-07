@@ -22,6 +22,10 @@ const (
 	ChatService_Connect_FullMethodName        = "/pb.ChatService/Connect"
 	ChatService_FetchHistory_FullMethodName   = "/pb.ChatService/FetchHistory"
 	ChatService_StartVideoCall_FullMethodName = "/pb.ChatService/StartVideoCall"
+	ChatService_SubmitReview_FullMethodName   = "/pb.ChatService/SubmitReview"
+	ChatService_FetchReviews_FullMethodName   = "/pb.ChatService/FetchReviews"
+	ChatService_AddVideoChunk_FullMethodName  = "/pb.ChatService/AddVideoChunk"
+	ChatService_FetchVideos_FullMethodName    = "/pb.ChatService/FetchVideos"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -31,6 +35,12 @@ type ChatServiceClient interface {
 	Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Message, Message], error)
 	FetchHistory(ctx context.Context, in *ChatID, opts ...grpc.CallOption) (*ChatHistory, error)
 	StartVideoCall(ctx context.Context, in *VideoCallRequest, opts ...grpc.CallOption) (*VideoCallResponse, error)
+	// Review Service
+	SubmitReview(ctx context.Context, in *ReviewRequest, opts ...grpc.CallOption) (*ReviewResponse, error)
+	FetchReviews(ctx context.Context, in *MaterialID, opts ...grpc.CallOption) (*ReviewList, error)
+	// Video Upload
+	AddVideoChunk(ctx context.Context, in *VideoUploadRequest, opts ...grpc.CallOption) (*VideoUploadResponse, error)
+	FetchVideos(ctx context.Context, in *FetchVideoRequest, opts ...grpc.CallOption) (*FetchVideoResponse, error)
 }
 
 type chatServiceClient struct {
@@ -74,6 +84,46 @@ func (c *chatServiceClient) StartVideoCall(ctx context.Context, in *VideoCallReq
 	return out, nil
 }
 
+func (c *chatServiceClient) SubmitReview(ctx context.Context, in *ReviewRequest, opts ...grpc.CallOption) (*ReviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReviewResponse)
+	err := c.cc.Invoke(ctx, ChatService_SubmitReview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) FetchReviews(ctx context.Context, in *MaterialID, opts ...grpc.CallOption) (*ReviewList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReviewList)
+	err := c.cc.Invoke(ctx, ChatService_FetchReviews_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) AddVideoChunk(ctx context.Context, in *VideoUploadRequest, opts ...grpc.CallOption) (*VideoUploadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VideoUploadResponse)
+	err := c.cc.Invoke(ctx, ChatService_AddVideoChunk_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) FetchVideos(ctx context.Context, in *FetchVideoRequest, opts ...grpc.CallOption) (*FetchVideoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FetchVideoResponse)
+	err := c.cc.Invoke(ctx, ChatService_FetchVideos_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChatServiceServer is the server API for ChatService service.
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility.
@@ -81,6 +131,12 @@ type ChatServiceServer interface {
 	Connect(grpc.BidiStreamingServer[Message, Message]) error
 	FetchHistory(context.Context, *ChatID) (*ChatHistory, error)
 	StartVideoCall(context.Context, *VideoCallRequest) (*VideoCallResponse, error)
+	// Review Service
+	SubmitReview(context.Context, *ReviewRequest) (*ReviewResponse, error)
+	FetchReviews(context.Context, *MaterialID) (*ReviewList, error)
+	// Video Upload
+	AddVideoChunk(context.Context, *VideoUploadRequest) (*VideoUploadResponse, error)
+	FetchVideos(context.Context, *FetchVideoRequest) (*FetchVideoResponse, error)
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -99,6 +155,18 @@ func (UnimplementedChatServiceServer) FetchHistory(context.Context, *ChatID) (*C
 }
 func (UnimplementedChatServiceServer) StartVideoCall(context.Context, *VideoCallRequest) (*VideoCallResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartVideoCall not implemented")
+}
+func (UnimplementedChatServiceServer) SubmitReview(context.Context, *ReviewRequest) (*ReviewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitReview not implemented")
+}
+func (UnimplementedChatServiceServer) FetchReviews(context.Context, *MaterialID) (*ReviewList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchReviews not implemented")
+}
+func (UnimplementedChatServiceServer) AddVideoChunk(context.Context, *VideoUploadRequest) (*VideoUploadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddVideoChunk not implemented")
+}
+func (UnimplementedChatServiceServer) FetchVideos(context.Context, *FetchVideoRequest) (*FetchVideoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchVideos not implemented")
 }
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
 func (UnimplementedChatServiceServer) testEmbeddedByValue()                     {}
@@ -164,6 +232,78 @@ func _ChatService_StartVideoCall_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ChatService_SubmitReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).SubmitReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_SubmitReview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).SubmitReview(ctx, req.(*ReviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_FetchReviews_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MaterialID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).FetchReviews(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_FetchReviews_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).FetchReviews(ctx, req.(*MaterialID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_AddVideoChunk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VideoUploadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).AddVideoChunk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_AddVideoChunk_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).AddVideoChunk(ctx, req.(*VideoUploadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_FetchVideos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FetchVideoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).FetchVideos(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_FetchVideos_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).FetchVideos(ctx, req.(*FetchVideoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ChatService_ServiceDesc is the grpc.ServiceDesc for ChatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -178,6 +318,22 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartVideoCall",
 			Handler:    _ChatService_StartVideoCall_Handler,
+		},
+		{
+			MethodName: "SubmitReview",
+			Handler:    _ChatService_SubmitReview_Handler,
+		},
+		{
+			MethodName: "FetchReviews",
+			Handler:    _ChatService_FetchReviews_Handler,
+		},
+		{
+			MethodName: "AddVideoChunk",
+			Handler:    _ChatService_AddVideoChunk_Handler,
+		},
+		{
+			MethodName: "FetchVideos",
+			Handler:    _ChatService_FetchVideos_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

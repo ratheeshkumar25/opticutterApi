@@ -22,6 +22,7 @@ const (
 	AdminService_AdminLoginRequest_FullMethodName = "/pb.AdminService/AdminLoginRequest"
 	AdminService_AdminBlockUser_FullMethodName    = "/pb.AdminService/AdminBlockUser"
 	AdminService_AdminUnblockUser_FullMethodName  = "/pb.AdminService/AdminUnblockUser"
+	AdminService_AdminViewProfile_FullMethodName  = "/pb.AdminService/AdminViewProfile"
 	AdminService_AddMaterial_FullMethodName       = "/pb.AdminService/AddMaterial"
 	AdminService_FindMaterialByID_FullMethodName  = "/pb.AdminService/FindMaterialByID"
 	AdminService_FindAllMaterial_FullMethodName   = "/pb.AdminService/FindAllMaterial"
@@ -40,6 +41,7 @@ type AdminServiceClient interface {
 	AdminLoginRequest(ctx context.Context, in *AdminLogin, opts ...grpc.CallOption) (*AdminResponse, error)
 	AdminBlockUser(ctx context.Context, in *AdID, opts ...grpc.CallOption) (*AdminResponse, error)
 	AdminUnblockUser(ctx context.Context, in *AdID, opts ...grpc.CallOption) (*AdminResponse, error)
+	AdminViewProfile(ctx context.Context, in *AdID, opts ...grpc.CallOption) (*AdminProfile, error)
 	// Service to handle material management
 	AddMaterial(ctx context.Context, in *AdminMaterial, opts ...grpc.CallOption) (*AdminResponse, error)
 	FindMaterialByID(ctx context.Context, in *AdminMaterialID, opts ...grpc.CallOption) (*AdminMaterial, error)
@@ -86,6 +88,16 @@ func (c *adminServiceClient) AdminUnblockUser(ctx context.Context, in *AdID, opt
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AdminResponse)
 	err := c.cc.Invoke(ctx, AdminService_AdminUnblockUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) AdminViewProfile(ctx context.Context, in *AdID, opts ...grpc.CallOption) (*AdminProfile, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminProfile)
+	err := c.cc.Invoke(ctx, AdminService_AdminViewProfile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -189,6 +201,7 @@ type AdminServiceServer interface {
 	AdminLoginRequest(context.Context, *AdminLogin) (*AdminResponse, error)
 	AdminBlockUser(context.Context, *AdID) (*AdminResponse, error)
 	AdminUnblockUser(context.Context, *AdID) (*AdminResponse, error)
+	AdminViewProfile(context.Context, *AdID) (*AdminProfile, error)
 	// Service to handle material management
 	AddMaterial(context.Context, *AdminMaterial) (*AdminResponse, error)
 	FindMaterialByID(context.Context, *AdminMaterialID) (*AdminMaterial, error)
@@ -219,6 +232,9 @@ func (UnimplementedAdminServiceServer) AdminBlockUser(context.Context, *AdID) (*
 }
 func (UnimplementedAdminServiceServer) AdminUnblockUser(context.Context, *AdID) (*AdminResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminUnblockUser not implemented")
+}
+func (UnimplementedAdminServiceServer) AdminViewProfile(context.Context, *AdID) (*AdminProfile, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminViewProfile not implemented")
 }
 func (UnimplementedAdminServiceServer) AddMaterial(context.Context, *AdminMaterial) (*AdminResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMaterial not implemented")
@@ -318,6 +334,24 @@ func _AdminService_AdminUnblockUser_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AdminServiceServer).AdminUnblockUser(ctx, req.(*AdID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_AdminViewProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).AdminViewProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_AdminViewProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).AdminViewProfile(ctx, req.(*AdID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -502,6 +536,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminUnblockUser",
 			Handler:    _AdminService_AdminUnblockUser_Handler,
+		},
+		{
+			MethodName: "AdminViewProfile",
+			Handler:    _AdminService_AdminViewProfile_Handler,
 		},
 		{
 			MethodName: "AddMaterial",

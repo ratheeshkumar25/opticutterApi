@@ -75,59 +75,6 @@ func UserPaymentHandler(c *gin.Context, client pb.UserServiceClient) {
 	})
 }
 
-// func UserPaymentHandler(c *gin.Context, client pb.UserServiceClient) {
-// 	timeOut := time.Second * 100
-// 	ctx, cancel := context.WithTimeout(c, timeOut)
-// 	defer cancel()
-
-// 	userIDstring := c.Query("id")
-// 	orderIDString := c.Query("order_id")
-
-// 	userID, err := strconv.Atoi(userIDstring)
-// 	if err != nil {
-// 		c.AbortWithStatusJSON(400, gin.H{
-// 			"Status":  400,
-// 			"Message": "error in converting userID to int",
-// 			"Error":   err.Error(),
-// 		})
-// 	}
-
-// 	orderID, err := strconv.Atoi(orderIDString)
-// 	if err != nil {
-// 		c.AbortWithStatusJSON(400, gin.H{
-// 			"Status":  400,
-// 			"Message": "error in converting orderID to int",
-// 			"Error":   err.Error(),
-// 		})
-// 	}
-
-// 	response, err := client.UserCreatePayment(ctx, &pb.UserOrder{
-// 		User_ID:  uint32(userID),
-// 		Order_ID: uint32(orderID),
-// 	})
-
-// 	log.Println("usercreateresponse", response.ClientSecret)
-
-// 	if err != nil {
-// 		c.AbortWithStatusJSON(400, gin.H{
-// 			"Status":  400,
-// 			"Message": "error in client response",
-// 			"Error":   err.Error()})
-// 		return
-// 	}
-
-// 	//fmt.Println(cnfg.STRIPEKEY)
-// 	c.HTML(200, "stripe.html", gin.H{
-// 		"userID":    userID,
-// 		"orderID":   orderID,
-// 		"paymentID": response.PaymentId,
-// 		"amount":    response.Amount,
-// 		"client":    response.ClientSecret,
-// 		//"spay":      cnfg.STRIPEKEY,
-// 	})
-
-// }
-
 // Define a struct for the expected request body
 type PaymentRequest struct {
 	UserID       string  `json:"user_id"`

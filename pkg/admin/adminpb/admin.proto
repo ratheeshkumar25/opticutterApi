@@ -9,6 +9,7 @@ service AdminService {
     rpc AdminLoginRequest(AdminLogin) returns(AdminResponse);
     rpc AdminBlockUser(AdID) returns(AdminResponse);
     rpc AdminUnblockUser(AdID)returns(AdminResponse);
+    rpc AdminViewProfile(AdID)returns(AdminProfile);
 
        // Service to handle material management
     rpc AddMaterial(AdminMaterial) returns (AdminResponse);
@@ -34,6 +35,13 @@ message AdminLogin{
     string email = 1;
     string password =2;
 }
+
+message AdminProfile{
+    uint32 Admin_ID = 1;
+    string email = 2;
+
+}
+
 
 message AdminResponse {
     enum Status {

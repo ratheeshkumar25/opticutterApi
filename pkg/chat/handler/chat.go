@@ -3,9 +3,11 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +17,6 @@ import (
 	userpb "github.com/ratheeshkumar25/opti_cut_api_gateway/pkg/user/userpb"
 )
 
-// Upgrader variable specifies the parmeters of upgrading HTTP request
 var Upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -24,7 +25,12 @@ var Upgrader = websocket.Upgrader{
 	},
 }
 
-// HandleWebSocketConnection handles the weboscket connection and bidirectional streaming
+var connections = struct {
+	sync.RWMutex
+	m map[uint32]*websocket.Conn
+}{m: make(map[uint32]*websocket.Conn)}
+
+// HandleWebSocketConnection handles the WebSocket connection and ensures proper message routing.
 func HandleWebSocketConnection(c *gin.Context, client pb.ChatServiceClient, userClient userpb.UserServiceClient) {
 	ctx := c.Request.Context()
 
@@ -35,65 +41,140 @@ func HandleWebSocketConnection(c *gin.Context, client pb.ChatServiceClient, user
 		return
 	}
 	defer conn.Close()
-	log.Println("WebSocket connection established")
 
+	id := c.Query("id")
+	userID, err := strconv.Atoi(id)
+	if err != nil {
+		log.Println("Error converting userID:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid userID"})
+		return
+	}
+
+	// WebSocketconnection store in the map
+	connections.Lock()
+	connections.m[uint32(userID)] = conn
+	connections.Unlock()
+
+	// it will makesure the connection is removed when the function exits
+	defer func() {
+		connections.Lock()
+		delete(connections.m, uint32(userID))
+		connections.Unlock()
+	}()
+
+	// Start a goroutine to handle incoming WebSocket messages
+	go handleIncomingMessages(client, ctx)
+
+	// Handle sending outgoing messages
 	for {
-		select {
-		case <-ctx.Done():
-			// Context canceled, stop processing messages
-			log.Println("WebSocket connection closed")
+		_, msg, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("Error reading message:", err)
 			return
-		default:
-			_, msg, err := conn.ReadMessage()
-			if err != nil {
-				log.Println("Error reading message:", err)
-				return
-			}
+		}
 
-			var message dto.Message
-			err = json.Unmarshal(msg, &message)
-			if err != nil {
-				log.Println("Error decoding JSON:", err)
-				continue
-			}
+		var message dto.Message
+		if err := json.Unmarshal(msg, &message); err != nil {
+			log.Println("Error unmarshalling message:", err)
+			continue
+		}
 
-			// Checking the user and receiver IDs
-			_, err = userClient.ViewProfile(ctx, &userpb.ID{ID: uint32(message.UserID)})
-			if err != nil {
-				log.Println("Error fetching user or invalid userID:", err)
-				continue
-			}
+		// Check if the receiver exists
+		_, err = userClient.ViewProfile(ctx, &userpb.ID{ID: uint32(message.ReceiverID)})
+		if err != nil {
+			log.Println("Receiver not found:", err)
+			continue
+		}
 
-			_, err = userClient.ViewProfile(ctx, &userpb.ID{ID: uint32(message.ReceiverID)})
-			if err != nil {
-				log.Println("Error fetching receiver or invalid receiverID:", err)
-				continue
-			}
+		// Send the message to the receiver WebSocket
+		err = sendToReceiver(uint32(message.ReceiverID), msg)
+		if err != nil {
+			log.Println("Error sending message to receiver:", err)
+			continue
+		}
 
-			stream, err := client.Connect(ctx)
-			if err != nil {
-				log.Println("Error calling chat service:", err)
-				continue
-			}
-			ch := &clientHandle{
-				stream:     stream,
-				userID:     uint32(message.UserID),
-				receiverID: uint32(message.ReceiverID),
-			}
-
-			err = conn.WriteMessage(websocket.TextMessage, msg)
-			if err != nil {
-				log.Println("Error writing message:", err)
-				return
-			}
-
-			go ch.sentMessage(message.Message)
-			go ch.receiveMessage(conn, uint32(message.UserID), uint32(message.ReceiverID))
+		// Also send the message back to the sender
+		err = sendToReceiver(uint32(message.UserID), msg)
+		if err != nil {
+			log.Println("Error sending message to sender:", err)
 		}
 	}
 }
 
-// ChatPage loads the chat page.
+// handleIncomingMessages handles incoming messages from the streaming service.
+func handleIncomingMessages(client pb.ChatServiceClient, ctx context.Context) {
+	// Start the streaming to receive messages from the service
+	stream, err := client.Connect(ctx)
+	if err != nil {
+		log.Println("Error calling chat service:", err)
+		return
+	}
+
+	// Handle incoming messages from the stream
+	for {
+		mssg, err := stream.Recv()
+		if err != nil {
+			log.Printf("Error receiving message from stream: %v", err)
+			return
+		}
+
+		// Forward the message to the correct receiver via WebSocket
+		receiverConn, err := getReceiverConnection(uint32(mssg.ReceiverId))
+		if err != nil {
+			log.Printf("Error retrieving receiver WebSocket connection: %v", err)
+			continue
+		}
+
+		// Prepare and send the message
+		message := dto.Message{
+			UserID:     uint(mssg.UserId),
+			ReceiverID: uint(mssg.ReceiverId),
+			Message:    mssg.Content,
+		}
+
+		msg, err := json.Marshal(message)
+		if err != nil {
+			log.Println("Error marshalling message:", err)
+			continue
+		}
+
+		// Send the message to the receiver's WebSocket
+		if err := receiverConn.WriteMessage(websocket.TextMessage, msg); err != nil {
+			log.Println("Error sending message to receiver WebSocket:", err)
+		}
+
+		// Also send the message back to the sender
+		senderConn, err := getReceiverConnection(uint32(mssg.UserId))
+		if err == nil {
+			if err := senderConn.WriteMessage(websocket.TextMessage, msg); err != nil {
+				log.Println("Error sending message to sender WebSocket:", err)
+			}
+		}
+	}
+}
+
+func sendToReceiver(receiverID uint32, msg []byte) error {
+	receiverConn, err := getReceiverConnection(receiverID)
+	if err != nil {
+		return fmt.Errorf("receiver connection not found: %v", err)
+	}
+
+	// Send the message to the receiver's WebSocket connection
+	return receiverConn.WriteMessage(websocket.TextMessage, msg)
+}
+
+func getReceiverConnection(receiverID uint32) (*websocket.Conn, error) {
+	connections.RLock()
+	defer connections.RUnlock()
+
+	conn, exists := connections.m[receiverID]
+	if !exists {
+		return nil, fmt.Errorf("no WebSocket connection found for receiver ID %d", receiverID)
+	}
+	return conn, nil
+}
+
+// ChatPage serves the chat page and fetches chat history
 func ChatPage(c *gin.Context, client pb.ChatServiceClient) {
 	timeout := time.Second * 1000
 	ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
@@ -115,62 +196,17 @@ func ChatPage(c *gin.Context, client pb.ChatServiceClient) {
 		return
 	}
 
-	response, err := client.FetchHistory(ctx, &pb.ChatID{User_ID: uint32(userID), Receiver_ID: uint32(receiverID)})
+	response, err := client.FetchHistory(ctx, &pb.ChatID{UserId: uint32(userID), ReceiverId: uint32(receiverID)})
 	if err != nil {
 		log.Println("Error calling chat client:", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"Status": http.StatusInternalServerError, "Message": "Error calling chat client", "Error": err.Error()})
 		return
 	}
 
-	c.HTML(http.StatusOK, "chat.html", gin.H{"response": response.Chats, "id": userID})
-}
-
-type clientHandle struct {
-	userID     uint32
-	receiverID uint32
-	stream     pb.ChatService_ConnectClient
-}
-
-func (c *clientHandle) sentMessage(msg string) {
-	message := &pb.Message{
-		User_ID:     c.userID,
-		Receiver_ID: c.receiverID,
-		Content:     msg,
-	}
-
-	err := c.stream.Send(message)
-	if err != nil {
-		log.Printf("Error while sending message to server: %v", err)
-	}
-}
-
-func (c *clientHandle) receiveMessage(conn *websocket.Conn, userID, receiverID uint32) {
-	for {
-		mssg, err := c.stream.Recv()
-		if err != nil {
-			log.Printf("Error receiving message from server: %v", err)
-			return
-		}
-
-		if userID == mssg.Receiver_ID && receiverID == mssg.User_ID {
-			dom := &dto.Message{
-				UserID:     uint(mssg.User_ID),
-				ReceiverID: uint(mssg.Receiver_ID),
-				Message:    mssg.Content,
-			}
-			msg, err := json.Marshal(dom)
-			if err != nil {
-				log.Println("Error encoding JSON:", err)
-				return
-			}
-
-			err = conn.WriteMessage(websocket.TextMessage, msg)
-			if err != nil {
-				log.Println("Error writing message:", err)
-				return
-			}
-		}
-	}
+	c.HTML(http.StatusOK, "chat.html", gin.H{
+		"Response": response.Chats,
+		"ID":       userID,
+	})
 }
 
 func StartVideoCall(c *gin.Context, client pb.ChatServiceClient) {
@@ -189,8 +225,8 @@ func StartVideoCall(c *gin.Context, client pb.ChatServiceClient) {
 	defer cancel()
 
 	response, err := client.StartVideoCall(ctx, &pb.VideoCallRequest{
-		User_ID:     req.UserID,
-		Receiver_ID: req.ReceiverID,
+		UserId:     req.UserID,
+		ReceiverId: req.ReceiverID,
 	})
 	if err != nil {
 		log.Printf("Failed to start video call: %v", err)
