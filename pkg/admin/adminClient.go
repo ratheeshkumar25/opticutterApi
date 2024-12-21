@@ -12,7 +12,7 @@ import (
 
 // ClientDial method connects to the service to the admin client
 func ClientDial(cfg config.Config) (pb.AdminServiceClient, error) {
-	grpcAddr := fmt.Sprintf("localhost:%s", cfg.ADMINPORT)
+	grpcAddr := fmt.Sprintf("admin-service:%s", cfg.ADMINPORT)
 	grpc, err := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("Error dialing to grpc to client : %s", err.Error())

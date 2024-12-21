@@ -103,7 +103,7 @@ func HandleWebSocketConnection(c *gin.Context, client pb.ChatServiceClient, user
 
 // handleIncomingMessages handles incoming messages from the streaming service.
 func handleIncomingMessages(client pb.ChatServiceClient, ctx context.Context) {
-	// Start the streaming to receive messages from the service
+	// streaming to receive messages from the service
 	stream, err := client.Connect(ctx)
 	if err != nil {
 		log.Println("Error calling chat service:", err)

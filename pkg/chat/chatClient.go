@@ -12,7 +12,7 @@ import (
 
 // ClientDial function setup the connection between chat service and api gateway
 func ClientDial(cfg config.Config) (pb.ChatServiceClient, error) {
-	grpcAddr := fmt.Sprintf("localhost:%s", cfg.CHATPORT)
+	grpcAddr := fmt.Sprintf("chat-service:%s", cfg.CHATPORT)
 	grpc, err := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("Error dialing to grpc to client : %s", err.Error())
