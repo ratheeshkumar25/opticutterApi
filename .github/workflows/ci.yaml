@@ -34,7 +34,7 @@ jobs:
     - name: Create .env file
       run: |
         echo "JWTKEY=${{ secrets.JWTKEY }}" >> .env
-        echo "USERPORT=${{ secrets. }}" >> .env
+        echo "USERPORT=${{ secrets.USERPORT }}" >> .env
         echo "ADMINPORT=${{ secrets.ADMINPORT }}" >> .env
         echo "APIPORT=${{ secrets.APIPORT }}" >> .env
         echo "CHATPORT=${{ secrets.CHATPORT }}" >> .env
