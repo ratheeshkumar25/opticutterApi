@@ -19,6 +19,7 @@ COPY --from=builder /app/api_gateway .
 
 COPY --from=builder /app/template ./template
 
+
 COPY .env /app/
 
 
