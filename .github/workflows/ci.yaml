@@ -39,7 +39,7 @@ jobs:
         echo "APIPORT=${{ secrets.APIPORT }}" >> .env
         echo "CHATPORT=${{ secrets.CHATPORT }}" >> .env
 
-    # Build and push Docker image
+    # Build and push Docker images
     - name: Build and push Docker image
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/api_gateway:v1.0 .
