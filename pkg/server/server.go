@@ -23,6 +23,15 @@ func (s *Server) StartServer(port string) {
 func NewServer() *Server {
 	engine := gin.Default()
 
+	// Add liveness and readiness routes
+	engine.GET("/healthz", func(c *gin.Context) {
+		c.Status(200) // Pod is alive
+	})
+
+	engine.GET("/ready", func(c *gin.Context) {
+		c.Status(200) // Pod is ready
+	})
+
 	return &Server{
 		R: engine,
 	}
